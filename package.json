@@ -1,0 +1,49 @@
+{
+  "name": "pet",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node ./build/index.js",
+    "start:dev": "nodemon -e ts --exec \"npm run build && npm run start\"",
+    "db:migrate": "npx sequelize-cli db:migrate"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@hapi/basic": "^7.0.0",
+    "@hapi/hapi": "^20.2.2",
+    "@hapi/inert": "^7.0.0",
+    "@hapi/vision": "^7.0.0",
+    "dotenv": "^16.0.3",
+    "hapi-swagger": "^14.5.5",
+    "joi": "^17.7.0",
+    "nodemon": "^2.0.20",
+    "pg": "^8.8.0",
+    "qs": "^6.11.0",
+    "redis": "^4.3.1",
+    "reflect-metadata": "^0.1.13",
+    "sequelize": "^6.25.3",
+    "sequelize-typescript": "^2.1.5",
+    "sqlite3": "^5.1.2",
+    "uuid": "^9.0.0",
+    "web3": "^1.8.0"
+  },
+  "devDependencies": {
+    "@types/hapi__basic": "^5.1.2",
+    "@types/hapi__hapi": "^20.0.13",
+    "@types/hapi__inert": "^5.2.3",
+    "@types/hapi__vision": "^5.5.3",
+    "@types/node": "^18.11.9",
+    "@types/qs": "^6.9.7",
+    "@types/uuid": "^8.3.4",
+    "@types/validator": "^13.7.10",
+    "@typescript-eslint/eslint-plugin": "^5.42.0",
+    "eslint": "^8.26.0",
+    "sequelize-cli": "^6.5.2",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.8.4"
+  }
+}
