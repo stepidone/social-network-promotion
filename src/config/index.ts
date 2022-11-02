@@ -23,7 +23,7 @@ export default {
   },
   auth: {
     session: {
-      lifetime: 60 * 60 * 24, // One day seconds
+      lifetime: isTest ? 60 * 5 : 60 * 60 * 24, // One day seconds
     },
   },
 }

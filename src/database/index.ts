@@ -3,6 +3,8 @@ import { Sequelize, ModelCtor, Model } from 'sequelize-typescript'
 import config from '../config'
 import { UserModel } from './user'
 
+export type TOptional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
+
 type TDatabaseOptions = Partial<{
   host: string
   port: number

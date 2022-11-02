@@ -1,4 +1,5 @@
 import {
+  AllowNull,
   Column,
   CreatedAt,
   DataType,
@@ -9,21 +10,24 @@ import {
   Table,
   UpdatedAt,
 } from 'sequelize-typescript'
-import { CreateOptions } from 'sequelize'
+import { CreateOptions, Optional } from 'sequelize'
 import * as uuid from 'uuid'
 
-type TUser = {
+export type TUser = {
   id: string
   address: string
+  name: string
+  dateOfBirth: Date
   createdAt: Date
   updatedAt: Date
   deletedAt: Date
 }
 
-type TCreateUser = Pick<TUser, 'address'>
+type TCreateUser = Optional<Pick<TUser, 'address' | 'name' | 'dateOfBirth'>, 'name' | 'dateOfBirth'>
 
 @Table({
   tableName: 'Users',
+  paranoid: true,
 })
 export class UserModel extends Model<TUser, TCreateUser> implements TUser {
   @PrimaryKey
@@ -31,8 +35,17 @@ export class UserModel extends Model<TUser, TCreateUser> implements TUser {
   @Column(DataType.STRING)
   id: string
 
+  @AllowNull(false)
   @Column(DataType.STRING)
   address: string
+
+  @AllowNull(true)
+  @Column(DataType.STRING)
+  name: string
+
+  @AllowNull(true)
+  @Column(DataType.DATE)
+  dateOfBirth: Date
   
   @CreatedAt
   createdAt: Date

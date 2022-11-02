@@ -1,12 +1,12 @@
 import { ServerRoute } from '@hapi/hapi'
 import Joi from 'joi'
 import * as handler from '../../api/v1/user'
-import { addressValidation, hexValidation, outputSchema, outputUser } from '../schemes'
+import { addressValidation, hexValidation, outputSchema, outputUser, userVariables } from '../schemes'
 
 export default <ServerRoute[]> [
   {
     method: 'GET',
-    path: '/user/message',
+    path: '/auth/message',
     handler: handler.getMessage,
     options: {
       tags: ['api', 'user', 'auth'],
@@ -24,11 +24,29 @@ export default <ServerRoute[]> [
     },
   },
   {
+    method: 'POST',
+    path: '/user/signup',
+    handler: handler.register,
+    options: {
+      tags: ['api', 'user'],
+      validate: {
+        payload: Joi.object({
+          messageHex: Joi.string().custom(hexValidation).required().description('Converted message').example('0x12345'),
+          signature: Joi.string().custom(hexValidation).required().description('Signature of converted message').example('0x12345'),
+          info: userVariables.optional().default({}),
+        }),
+      },
+      response: {
+        schema: outputUser,
+      },
+    },
+  },
+  {
     method: 'GET',
     path: '/user/signin',
     handler: handler.login,
     options: {
-      tags: ['api', 'user', 'auth'],
+      tags: ['api', 'user', 'signature'],
       auth: 'signature',
       response: {
         schema: outputUser,
@@ -36,19 +54,29 @@ export default <ServerRoute[]> [
     },
   },
   {
-    method: 'POST',
-    path: '/user/signup',
-    handler: handler.register,
+    method: 'PUT',
+    path:  '/user',
+    handler: handler.upd,
     options: {
-      tags: ['api', 'user', 'auth'],
+      tags: ['api', 'user', 'signature'],
+      auth: 'signature',
       validate: {
-        payload: Joi.object({
-          messageHex: Joi.string().custom(hexValidation).required().description('Converted message').example('0x12345'),
-          signature: Joi.string().custom(hexValidation).required().description('Signature of converted message').example('0x12345'),
-        }),
+        payload: userVariables.required(),
       },
       response: {
         schema: outputUser,
+      },
+    },
+  },
+  {
+    method: 'DELETE',
+    path:  '/user',
+    handler: handler.del,
+    options: {
+      tags: ['api', 'user', 'signature'],
+      auth: 'signature',
+      response: {
+        schema: outputSchema(),
       },
     },
   },

@@ -1,5 +1,5 @@
 
-type TOutput<T> = {
+export type TOutput<T> = {
   status: boolean
   result?: T
 }

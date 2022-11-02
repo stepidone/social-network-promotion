@@ -13,8 +13,12 @@ export default <Plugin<string>> {
       const message = await client.get(key)
       return message ? JSON.parse(message) : null
     })
-    server.method('redisSet', async (key: string, message: unknown) => {
-      const response = await client.set(key, typeof message === 'string' ? message : JSON.stringify(message))
+    server.method('redisSet', async (key: string, message: unknown, options = {}) => {
+      const response = await client.set(
+        key,
+        typeof message === 'string' ? message : JSON.stringify(message),
+        options,
+      )
       return response === 'OK'
     })
     server.method('redisDel', async (key: string) => !!(await client.del(key)))

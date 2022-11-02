@@ -7,6 +7,13 @@ import { SessionClient } from '../../redis/session'
 import { boomConstructor, EError } from '../../utils/error'
 import { getMessageHex, recoverAddress } from '../../utils/web3'
 
+const standardizeUser = (user: UserModel) => output({
+  id: user.id,
+  address: user.address,
+  name: user.name,
+  dateOfBirth: user.dateOfBirth,
+})
+
 export const getMessage = async (
   request: Request,
   reply: ResponseToolkit,
@@ -28,18 +35,29 @@ export const getMessage = async (
   }))
 }
 
+type TUserVariables = {
+  name: string
+  dateOfBirth: Date
+}
+
+type TRegister = {
+  signature: string
+  messageHex: string
+  info?: TUserVariables
+}
+
 export const register = async (
   request: Request,
   reply: ResponseToolkit,
 ): Promise<ResponseObject> => {
-  const { signature, messageHex } = request.payload as { signature: string, messageHex: string }
+  const { signature, messageHex, info } = request.payload as TRegister
   const address = recoverAddress(messageHex, signature)
   const session = await SessionClient.get(messageHex)
   if (!session) throw boomConstructor(EError.SessionNotFound)
   if (session.address !== address) throw boomConstructor(EError.InvalidSignature)
   if (await userGetByAddress(address)) throw boomConstructor(EError.AlreadyExist)
-  const user = await userCreate({ address })
-  return reply.response(output({ id: user.id, address: user.address }))
+  const user = await userCreate({ address, ...info })
+  return reply.response(standardizeUser(user))
 }
 
 export const login = async (
@@ -47,5 +65,24 @@ export const login = async (
   reply: ResponseToolkit,
 ): Promise<ResponseObject> => {
   const user = request.auth.credentials.user as UserModel
-  return reply.response(output({ id: user.id, address: user.address }))
+  return reply.response(standardizeUser(user))
+}
+
+export const upd = async (
+  request: Request,
+  reply: ResponseToolkit,
+): Promise<ResponseObject> => {
+  const payload = request.payload as TUserVariables
+  const user = request.auth.credentials.user as UserModel
+  await user.update(payload)
+  return reply.response(standardizeUser(user))
+}
+
+export const del = async (
+  request: Request,
+  reply: ResponseToolkit,
+): Promise<ResponseObject> => {
+  const user = request.auth.credentials.user as UserModel
+  await user.destroy()
+  return reply.response(output())
 }
