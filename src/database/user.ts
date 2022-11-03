@@ -5,6 +5,7 @@ import {
   DataType,
   Default,
   DeletedAt,
+  HasMany,
   Model,
   PrimaryKey,
   Table,
@@ -12,6 +13,7 @@ import {
 } from 'sequelize-typescript'
 import { CreateOptions, Optional } from 'sequelize'
 import * as uuid from 'uuid'
+import { UserSocialModel } from './userSocial'
 
 export type TUser = {
   id: string
@@ -55,6 +57,9 @@ export class UserModel extends Model<TUser, TCreateUser> implements TUser {
 
   @DeletedAt
   deletedAt: Date
+
+  @HasMany(() => UserSocialModel)
+  socials: UserSocialModel[]
 }
 
 export const userCreate = async (
@@ -65,3 +70,7 @@ export const userCreate = async (
 export const userGetByAddress = async (
   address: string,
 ): Promise<UserModel> => UserModel.findOne({ where: { address } })
+
+export const userGetById = async (
+  id: string,
+): Promise<UserModel> => UserModel.findByPk(id)

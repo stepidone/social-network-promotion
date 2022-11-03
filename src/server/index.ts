@@ -13,7 +13,8 @@ import { signatureAuth } from '../utils/auth'
 import { responseFilter } from '../utils/error'
 
 export const server = new Server({
-  ...config.server,
+  host: config.server.host,
+  port: config.server.port,
   routes: {
     validate: {
       failAction: (request, h ,err) => {

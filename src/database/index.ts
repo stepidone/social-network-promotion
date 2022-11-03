@@ -2,6 +2,7 @@ import { Plugin, Server } from '@hapi/hapi'
 import { Sequelize, ModelCtor, Model } from 'sequelize-typescript'
 import config from '../config'
 import { UserModel } from './user'
+import { UserSocialModel } from './userSocial'
 
 export type TOptional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
 
@@ -20,6 +21,7 @@ export default <Plugin<TDatabaseOptions>> {
     let sequelize: Sequelize
     const models: ModelCtor<Model<any, any>>[] = [
       UserModel,
+      UserSocialModel,
     ]
 
     if (config.isTest) {
@@ -43,6 +45,7 @@ export default <Plugin<TDatabaseOptions>> {
       })
     }
 
+    server.method('transaction', async () => sequelize.transaction())
     server.expose({
       /**
        * Get the underlying sequelize object

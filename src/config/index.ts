@@ -9,6 +9,7 @@ export default {
   server: {
     host: process.env.SERVER_HOST!,
     port: process.env.SERVER_PORT!,
+    url: process.env.SERVER_URL || `http://${process.env.SERVER_HOST}:${process.env.SERVER_PORT}`,
   },
   database: {
     dialect: 'postgres',
@@ -24,6 +25,11 @@ export default {
   auth: {
     session: {
       lifetime: isTest ? 60 * 5 : 60 * 60 * 24, // One day seconds
+    },
+  },
+  socials: {
+    twitter: {
+      clientId: process.env.TWITTER_CLIENT_ID,
     },
   },
 }
