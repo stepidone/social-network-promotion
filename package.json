@@ -1,7 +1,7 @@
 {
-  "name": "pet",
+  "name": "social-network-promotion",
   "version": "1.0.0",
-  "description": "Test Project",
+  "description": "Create tasks to promote your own social network or complete tasks to get rewarded",
   "main": "index.js",
   "scripts": {
     "build": "tsc",
