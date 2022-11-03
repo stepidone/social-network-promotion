@@ -1,5 +1,6 @@
 import {
   AllowNull,
+  BelongsToMany,
   Column,
   CreatedAt,
   DataType,
@@ -14,6 +15,8 @@ import {
 import { CreateOptions, Optional } from 'sequelize'
 import * as uuid from 'uuid'
 import { UserSocialModel } from './userSocial'
+import { TaskStatisticModel } from './TaskStatistic'
+import { TaskModel } from './task'
 
 export type TUser = {
   id: string
@@ -60,6 +63,12 @@ export class UserModel extends Model<TUser, TCreateUser> implements TUser {
 
   @HasMany(() => UserSocialModel)
   socials: UserSocialModel[]
+
+  @HasMany(() => TaskStatisticModel)
+  taskStats: TaskStatisticModel[]
+
+  @BelongsToMany(() => TaskModel, () => TaskStatisticModel)
+  tasks: TaskModel[]
 }
 
 export const userCreate = async (

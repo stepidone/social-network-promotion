@@ -1,6 +1,9 @@
 import { Plugin, Server } from '@hapi/hapi'
 import { Sequelize, ModelCtor, Model } from 'sequelize-typescript'
 import config from '../config'
+import { TaskRewardModel } from './taskReward'
+import { TaskModel } from './task'
+import { TaskStatisticModel } from './TaskStatistic'
 import { UserModel } from './user'
 import { UserSocialModel } from './userSocial'
 
@@ -22,6 +25,9 @@ export default <Plugin<TDatabaseOptions>> {
     const models: ModelCtor<Model<any, any>>[] = [
       UserModel,
       UserSocialModel,
+      TaskModel,
+      TaskRewardModel,
+      TaskStatisticModel,
     ]
 
     if (config.isTest) {
