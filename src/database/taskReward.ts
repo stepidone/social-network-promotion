@@ -15,14 +15,15 @@ import {
 import { CreateOptions } from 'sequelize'
 import * as uuid from 'uuid'
 import { TaskModel } from './task'
+import { ENetwork } from '../config'
 
-type TTaskReward = {
+export type TTaskReward = {
   id: string
   taskId: number
   contractAddress: string
   contractSymbol: string
   contractDecimals: number
-  network: string
+  network: ENetwork
   totalAmount: number
   rewardAmount: number
   createdAt: Date
@@ -30,7 +31,7 @@ type TTaskReward = {
   deletedAt: Date
 }
 
-type TCreateTaskReward = Omit<TTaskReward, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>
+export type TCreateTaskReward = Omit<TTaskReward, 'id' | 'createdAt' | 'updatedAt' | 'deletedAt'>
 
 @Table({
   tableName: 'TaskRewards',
@@ -61,14 +62,14 @@ export class TaskRewardModel extends Model<TTaskReward, TCreateTaskReward> imple
 
   @AllowNull(false)
   @Column(DataType.STRING)
-  network: string
+  network: ENetwork
 
   @AllowNull(false)
-  @Column(DataType.INTEGER)
+  @Column(DataType.DECIMAL)
   rewardAmount: number
 
   @AllowNull(false)
-  @Column(DataType.INTEGER)
+  @Column(DataType.DECIMAL)
   totalAmount: number
   
   @CreatedAt

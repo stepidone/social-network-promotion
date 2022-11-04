@@ -33,8 +33,9 @@ const errorMessage = {
 
 export const boomConstructor = (
   statusCode: EError,
+  message?: string,
 ): Boom => new Boom(
-  errorMessage[statusCode],
+  message || errorMessage[statusCode],
   { statusCode: Math.floor(statusCode / 1000) },
 )
 

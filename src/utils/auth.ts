@@ -10,7 +10,7 @@ export const signatureAuth = () => ({
     const { 'signature': signature, 'message-hex': messageHex } = request.headers
     if (!messageHex || !signature) {
       if (isOptionalAuth) {
-        return response.unauthenticated(new Error('Missing fields'))
+        return response.unauthenticated(null, { credentials: { user: null } })
       }
 
       throw boomConstructor(EError.MissingFields)

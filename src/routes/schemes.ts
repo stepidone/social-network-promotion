@@ -20,11 +20,44 @@ export const outputSchema = (result?: Joi.Schema): Joi.Schema => result
     status: Joi.boolean(),
   })
 
-export const outputUser = (): Joi.Schema => outputSchema(Joi.object({
+export const outputUser = outputSchema(Joi.object({
   id: Joi.string(),
   address: Joi.string(),
   name: Joi.string(),
   dateOfBirth: Joi.string(),
+}))
+
+const taskSchema = Joi.object({
+  id: Joi.number(),
+  owner: Joi.string(),
+  type: Joi.string(),
+  name: Joi.string(),
+  description: Joi.string().allow(null),
+  status: Joi.string(),
+  related: Joi.object({
+    url: Joi.string(),
+    externalId: Joi.string(),
+  }).allow(null),
+  reward: Joi.object({
+    id: Joi.string(),
+    contractAddress: Joi.string(),
+    contractSymbol: Joi.string(),
+    contractDecimals: Joi.number(),
+    network: Joi.string(),
+    totalAmount: Joi.string(),
+    rewardAmount: Joi.string(),
+  }),
+})
+
+export const outputTask = outputSchema(taskSchema)
+
+export const outputTaskList = outputSchema(Joi.object({
+  count: Joi.number(),
+  rows: Joi.array().items(
+    taskSchema.concat(Joi.object({
+      passingStatus: Joi.string().allow(null),
+    })),
+  ),
 }))
 
 export const userVariables = Joi.object({

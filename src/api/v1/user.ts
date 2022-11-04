@@ -27,7 +27,7 @@ export const getMessage = async (
     address,
     createdAt,
   })
-  if (!isCreated) throw boomConstructor(EError.InternalServerError)
+  if (!isCreated) throw boomConstructor(EError.InternalServerError, 'Redis error')
 
   return reply.response(output({
     message,

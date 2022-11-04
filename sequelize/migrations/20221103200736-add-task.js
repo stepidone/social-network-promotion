@@ -5,6 +5,7 @@ module.exports = {
   async up (queryInterface, Sequelize) {
     await queryInterface.createTable('Tasks', {
       id: { primaryKey: true, type: Sequelize.INTEGER, autoIncrement: true },
+      owner: { type: Sequelize.STRING, allowNull: false },
       type: { type: Sequelize.STRING, allowNull: false },
       name: { type: Sequelize.STRING, allowNull: false },
       description: { type: Sequelize.STRING(511), allowNull: true },
@@ -21,8 +22,8 @@ module.exports = {
       contractSymbol: { type: Sequelize.STRING, allowNull: false },
       contractDecimals: { type: Sequelize.INTEGER, allowNull: false },
       network: { type: Sequelize.STRING, allowNull: false },
-      totalAmount: { type: Sequelize.INTEGER, allowNull: false },
-      rewardAmount: { type: Sequelize.INTEGER, allowNull: false },
+      totalAmount: { type: Sequelize.DECIMAL, allowNull: false },
+      rewardAmount: { type: Sequelize.DECIMAL, allowNull: false },
       createdAt: { type: Sequelize.DATE, allowNull: false },
       updatedAt: { type: Sequelize.DATE, allowNull: false },
       deletedAt: { type: Sequelize.DATE, allowNull: true },

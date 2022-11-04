@@ -11,22 +11,23 @@ import {
   HasOne,
   Model,
   PrimaryKey,
+  Scopes,
   Table,
   UpdatedAt,
 } from 'sequelize-typescript'
-import { CreateOptions } from 'sequelize'
+import { CreateOptions, FindAttributeOptions, FindOptions, Includeable, Sequelize } from 'sequelize'
 import { TOptional } from './index'
 import { TaskRewardModel } from './taskReward'
 import { TaskStatisticModel } from './TaskStatistic'
 import { UserModel } from './user'
 
-enum ETaskType {
+export enum ETaskType {
   twitter_follow = 'twitter_follow',
   twitter_like = 'twitter_like',
   twitter_retweet = 'twitter_retweet',
 }
 
-enum ETaskStatus {
+export enum ETaskStatus {
   created = 'created',
   active = 'active',
   completed = 'completed',
@@ -34,11 +35,12 @@ enum ETaskStatus {
 
 type ETwitterRelated = {
   url: string
-  externalId: string
+  externalId?: string
 }
 
-type TTask = {
+export type TTask = {
   id: number
+  owner: string
   type: ETaskType
   name: string
   description: string
@@ -49,8 +51,51 @@ type TTask = {
   deletedAt: Date
 }
 
-type TCreateTask = TOptional<Pick<TTask, 'type' | 'name' | 'description' | 'related'>, 'description' | 'related'>
+export type TCreateTask = TOptional<Pick<TTask, 'type' | 'name' | 'description' | 'related' | 'owner'>, 'description' | 'related'>
 
+@Scopes(() => ({
+  public(userId: string) {
+    const include: Includeable[] = [
+      {
+        model: TaskRewardModel,
+        attributes: {
+          exclude: ['taskId', 'createdAt', 'updatedAt', 'deletedAt'],
+        },
+      },
+    ]
+
+    const attributes: FindAttributeOptions = {
+      include: [],
+      exclude: ['createdAt', 'updatedAt', 'deletedAt'],
+    }
+
+    if (userId) {
+      include.push({
+        model: TaskStatisticModel,
+        where: {
+          userId,
+        },
+        required: false,
+        attributes: [],
+      })
+      attributes.include.push(
+        [Sequelize.col('userStats.status'), 'passingStatus'],
+      )
+    }
+
+    const options: FindOptions<TTask> = {
+      where: {
+        status: ETaskStatus.active,
+      },
+      include,
+      attributes,
+      raw: true,
+      nest: true,
+    }
+
+    return options
+  },
+}))
 @Table({
   tableName: 'Tasks',
   paranoid: true,
@@ -60,6 +105,10 @@ export class TaskModel extends Model<TTask, TCreateTask> implements TTask {
   @AutoIncrement
   @Column(DataType.INTEGER)
   id: number
+
+  @AllowNull(false)
+  @Column(DataType.STRING)
+  owner: string
 
   @AllowNull(false)
   @Column(DataType.STRING)
@@ -105,3 +154,18 @@ export const taskCreate = async (
   data: TCreateTask,
   options: CreateOptions<TTask> = {},
 ): Promise<TaskModel> => TaskModel.create(data, options)
+
+export const taskGetPublicList = async (
+  options: FindOptions<TTask>,
+  userId: string = null,
+): Promise<{ count: number, rows: TaskModel[] }> => TaskModel.scope({ method: ['public', userId] }).findAndCountAll(options)
+
+export const taskGetById = async (
+  id: string,
+): Promise<TaskModel> => TaskModel.findByPk(id, {
+  include: [
+    {
+      model: TaskRewardModel,
+    },
+  ],
+})

@@ -4,6 +4,14 @@ config()
 
 const isTest = process.env.NODE_ENV === 'test'
 
+export enum ENetwork {
+  mumbai = 'mumbai',
+}
+
+const provider = {
+  [ENetwork.mumbai]: `https://polygon-mumbai.infura.io/v3/${process.env.INFURA_API_KEY}`,
+}
+
 export default {
   isTest,
   server: {
@@ -30,6 +38,8 @@ export default {
   socials: {
     twitter: {
       clientId: process.env.TWITTER_CLIENT_ID,
+      bearerToken: process.env.TWITTER_BEARER,
     },
   },
+  provider,
 }
