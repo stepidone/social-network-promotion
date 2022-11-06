@@ -3,7 +3,7 @@ import Joi from 'joi'
 import * as handler from '../../api/v1/task'
 import { ENetwork } from '../../config'
 import { ETaskStatus, ETaskType } from '../../database/task'
-import { addressValidation, outputSchema, outputTask, outputTaskList } from '../schemes'
+import { addressValidation, outputSchema, outputTaskSchema, outputTaskListSchema, outputTaskStatusSchema, outputSignedMessage } from '../schemes'
 
 export default <ServerRoute[]> [
   {
@@ -30,7 +30,7 @@ export default <ServerRoute[]> [
         }),
       },
       response: {
-        schema: outputTaskList,
+        schema: outputTaskListSchema,
       },
     },
   },
@@ -56,7 +56,7 @@ export default <ServerRoute[]> [
         }),
       },
       response: {
-        schema: outputTask,
+        schema: outputTaskSchema,
       },
     },
   },
@@ -69,7 +69,7 @@ export default <ServerRoute[]> [
       auth: 'signature',
       validate: {
         payload: Joi.object({
-          id: Joi.string().required(),
+          id: Joi.number().required(),
           name: Joi.string().min(5).max(255).regex(/^[a-zA-Z0-9-_.,!:; ]+$/).optional(),
           description: Joi.string().min(5).max(511).regex(/^[a-zA-Z0-9-_.,!:; ]+$/).optional(),
           url: Joi.string().uri().optional(),
@@ -82,7 +82,7 @@ export default <ServerRoute[]> [
         }),
       },
       response: {
-        schema: outputTask,
+        schema: outputTaskSchema,
       },
     },
   },
@@ -95,11 +95,62 @@ export default <ServerRoute[]> [
       auth: 'signature',
       validate: {
         payload: Joi.object({
-          id: Joi.string(),
+          id: Joi.number(),
         }),
       },
       response: {
         schema: outputSchema(),
+      },
+    },
+  },
+  {
+    method: 'GET',
+    path: '/task/replenish',
+    handler: handler.replenish,
+    options: {
+      tags: ['api', 'task', 'signature'],
+      auth: 'signature',
+      validate: {
+        query: Joi.object({
+          id: Joi.number(),
+        }),
+      },
+      response: {
+        schema: outputSignedMessage,
+      },
+    },
+  },
+  {
+    method: 'GET',
+    path: '/task/check',
+    handler: handler.check,
+    options: {
+      tags: ['api', 'task', 'signature'],
+      auth: 'signature',
+      validate: {
+        query: Joi.object({
+          id: Joi.number(),
+        }),
+      },
+      response: {
+        schema: outputTaskStatusSchema,
+      },
+    },
+  },
+  {
+    method: 'GET',
+    path: '/task/claim',
+    handler: handler.claim,
+    options: {
+      tags: ['api', 'task', 'signature'],
+      auth: 'signature',
+      validate: {
+        query: Joi.object({
+          id: Joi.number(),
+        }),
+      },
+      response: {
+        schema: outputSignedMessage,
       },
     },
   },

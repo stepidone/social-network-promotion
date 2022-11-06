@@ -20,11 +20,10 @@ export const outputSchema = (result?: Joi.Schema): Joi.Schema => result
     status: Joi.boolean(),
   })
 
-export const outputUser = outputSchema(Joi.object({
+export const outputUserSchema = outputSchema(Joi.object({
   id: Joi.string(),
   address: Joi.string(),
-  name: Joi.string(),
-  dateOfBirth: Joi.string(),
+  name: Joi.string().allow(null),
 }))
 
 const taskSchema = Joi.object({
@@ -49,9 +48,9 @@ const taskSchema = Joi.object({
   }),
 })
 
-export const outputTask = outputSchema(taskSchema)
+export const outputTaskSchema = outputSchema(taskSchema)
 
-export const outputTaskList = outputSchema(Joi.object({
+export const outputTaskListSchema = outputSchema(Joi.object({
   count: Joi.number(),
   rows: Joi.array().items(
     taskSchema.concat(Joi.object({
@@ -60,7 +59,20 @@ export const outputTaskList = outputSchema(Joi.object({
   ),
 }))
 
-export const userVariables = Joi.object({
+export const userVariablesSchema = Joi.object({
   name: Joi.string().min(3).max(255).optional(),
-  dateOfBirth: Joi.date().optional(),
 })
+
+export const outputTaskStatusSchema = outputSchema(Joi.object({
+  status: Joi.string(),
+}))
+
+export const outputSignedMessage = outputSchema(Joi.object({
+  sender: Joi.string(),
+  value: Joi.string(),
+  nonce: Joi.string(),
+  token: Joi.string(),
+  v: Joi.string(),
+  r: Joi.string(),
+  s: Joi.string(),
+}))

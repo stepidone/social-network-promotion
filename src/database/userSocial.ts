@@ -60,10 +60,6 @@ export class UserSocialModel extends Model<TUserSocial, TCreateUserSocial> imple
   @AllowNull(true)
   @Column(DataType.STRING)
   name: string
-
-  @AllowNull(true)
-  @Column(DataType.DATE)
-  dateOfBirth: Date
   
   @CreatedAt
   createdAt: Date

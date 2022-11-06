@@ -6,6 +6,10 @@ import config from '../../../config'
 import { ETaskType, TaskModel, TTask } from '../../../database/task'
 import { TaskRewardModel, TTaskReward } from '../../../database/taskReward'
 import { boomConstructor, EError } from '../../../utils/error'
+import { ESocialPlatform, userSocialGetByUser } from '../../../database/userSocial'
+import { UserModel } from '../../../database/user'
+import { getFollowerByGroupAndUser } from '../../../database/twitter/groupFollower'
+import { ETwitterPostInteractionType, getInteractionByGroupAndUser } from '../../../database/twitter/postInteraction'
 
 export const formListOptions = (query: RequestQuery): FindOptions => {
   const options: FindOptions<TTask> = {}
@@ -130,4 +134,31 @@ export const getAdditionalRelatedDataByType = async (
   }
 
   return additional
+}
+
+export const checkTwitterFollow = async (
+  user: UserModel,
+  task: TaskModel,
+): Promise<void> => {
+  const userTwitter = await userSocialGetByUser(ESocialPlatform.twitter, user.id)
+  if (!userTwitter) throw boomConstructor(EError.Forbidden, 'Connect twitter')
+  const follower = await getFollowerByGroupAndUser(task.related.externalId, user.id)
+  if (!follower) throw boomConstructor(EError.Forbidden, 'Task is not completed')
+}
+
+export const checkTwitterInteraction = (type: ETwitterPostInteractionType) => async (
+  user: UserModel,
+  task: TaskModel,
+): Promise<void> => {
+  const userTwitter = await userSocialGetByUser(ESocialPlatform.twitter, user.id)
+  if (!userTwitter) throw boomConstructor(EError.Forbidden, 'Connect twitter')
+  const record = await getInteractionByGroupAndUser(type, task.related.externalId, user.id)
+  if (!record) throw boomConstructor(EError.Forbidden, 'Task is not completed')
+
+}
+
+export const checkHandlers = {
+  [ETaskType.twitter_follow]: checkTwitterFollow,
+  [ETaskType.twitter_like]: checkTwitterInteraction(ETwitterPostInteractionType.like),
+  [ETaskType.twitter_retweet]: checkTwitterInteraction(ETwitterPostInteractionType.retweet),
 }

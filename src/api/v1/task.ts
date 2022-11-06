@@ -7,8 +7,9 @@ import { taskRewardCreate, TCreateTaskReward } from '../../database/taskReward'
 import { UserModel } from '../../database/user'
 import { server } from '../../server'
 import { boomConstructor, EError } from '../../utils/error'
-import { verifyERC20 } from '../../utils/web3'
-import { formListOptions, getAdditionalRelatedDataByType, standardizeTask } from './helpers/task'
+import { numberShiftRight, numberToUnit, signByValidator, verifyERC20 } from '../../utils/web3'
+import { checkHandlers, formListOptions, getAdditionalRelatedDataByType, standardizeTask } from './helpers/task'
+import { ETaskStatisticStatus, statGetByTaskAndUser } from '../../database/TaskStatistic'
 
 export const list = async (
   request: Request,
@@ -42,7 +43,6 @@ export const create = async (
   const user = request.auth.credentials.user as UserModel
   const payload = request.payload as TTaskCreatePayload
   const transaction = await server.methods.transaction() as Transaction
-
   try {
     const { decimals, symbol } = await verifyERC20(payload.reward.network, payload.reward.contractAddress)
     const taskData: TCreateTask = {
@@ -77,7 +77,7 @@ export const create = async (
 }
 
 type TTaskUpdatePayload = Partial<Omit<TTaskCreatePayload, 'type' | 'reward'>> & {
-  id: string
+  id: number
   reward?: Partial<TTaskRewardCreate>
 }
 
@@ -148,11 +148,78 @@ export const del = async (
   reply: ResponseToolkit,
 ): Promise<ResponseObject> => {
   const user = request.auth.credentials.user as UserModel
-  const { id } = request.payload as { id: string }
+  const { id } = request.payload as { id: number }
   const task = await taskGetById(id)
   if (!task) throw boomConstructor(EError.NotFound, 'Task not found')
   if (task.owner !== user.address) throw boomConstructor(EError.Forbidden, 'No permission')
   if (task.status !== ETaskStatus.created) throw boomConstructor(EError.Forbidden, 'No longer available')
   await task.destroy()
   return reply.response(output())
+}
+
+export const check = async (
+  request: Request,
+  reply: ResponseToolkit,
+): Promise<ResponseObject> => {
+  const user = request.auth.credentials.user as UserModel
+  const { id } = request.query
+  const task = await taskGetById(id)
+  if (!task) throw boomConstructor(EError.NotFound, 'Task not found')
+  if (task.status !== ETaskStatus.active) throw boomConstructor(EError.Forbidden, 'No longer available')
+  const [statistic] = await statGetByTaskAndUser(task.id, user.id)
+  if (statistic.status === ETaskStatisticStatus.processing) throw boomConstructor(EError.Forbidden, 'Processing')
+  if (statistic.status !== ETaskStatisticStatus.notCompleted) throw boomConstructor(EError.Forbidden, 'Already checked')
+  const handler = checkHandlers[task.type]
+  if (!handler) throw boomConstructor(EError.Forbidden, 'Unavailable type')
+  await handler(user, task)
+  await statistic.update({
+    status: ETaskStatisticStatus.completed,
+  })
+
+  return reply.response(output({
+    status: statistic.status,
+  }))
+}
+
+export const claim = async (
+  request: Request,
+  reply: ResponseToolkit,
+): Promise<ResponseObject> => {
+  const user = request.auth.credentials.user as UserModel
+  const { id } = request.query
+  const task = await taskGetById(id)
+  if (!task) throw boomConstructor(EError.NotFound, 'Task not found')
+  if (task.status !== ETaskStatus.active) throw boomConstructor(EError.Forbidden, 'No longer available')
+  const [statistic] = await statGetByTaskAndUser(task.id, user.id)
+  if (statistic.status === ETaskStatisticStatus.rewarded) throw boomConstructor(EError.Forbidden, 'Already Claimed')
+  if (statistic.status !== ETaskStatisticStatus.completed) throw boomConstructor(EError.Forbidden, 'Task is not completed')
+  const messageToSign = {
+    sender: { t: 'address', v: user.address },
+    value: { t: 'uint256', v: numberShiftRight(task.reward.rewardAmount, task.reward.contractDecimals as keyof typeof numberToUnit) },
+    nonce: { t: 'string', v: String(statistic.nonce) },
+    token: { t: 'address', v: task.reward.contractAddress },
+  }
+  const vrs = signByValidator(messageToSign, task.reward.network)
+
+  return reply.response(output(vrs))
+}
+
+export const replenish = async (
+  request: Request,
+  reply: ResponseToolkit,
+): Promise<ResponseObject> => {
+  const user = request.auth.credentials.user as UserModel
+  const { id } = request.query
+  const task = await taskGetById(id)
+  if (!task) throw boomConstructor(EError.NotFound, 'Task not found')
+  if (task.status !== ETaskStatus.created) throw boomConstructor(EError.Forbidden, 'Already replenished')
+  const messageToSign = {
+    sender: { t: 'address', v: user.address },
+    value: { t: 'uint256', v: numberShiftRight(task.reward.totalAmount, task.reward.contractDecimals as keyof typeof numberToUnit) },
+    nonce: { t: 'string', v: String(task.id) },
+    token: { t: 'address', v: task.reward.contractAddress },
+  }
+  const vrs = signByValidator(messageToSign, task.reward.network)
+
+  return reply.response(output(vrs))
 }

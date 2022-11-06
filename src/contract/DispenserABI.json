@@ -103,7 +103,7 @@
       {
         "indexed": false,
         "internalType": "string",
-        "name": "id",
+        "name": "nonce",
         "type": "string"
       },
       {
@@ -113,7 +113,7 @@
         "type": "address"
       }
     ],
-    "name": "rewardERC20",
+    "name": "replenishedERC20",
     "type": "event"
   },
   {
@@ -134,7 +134,7 @@
       {
         "indexed": false,
         "internalType": "string",
-        "name": "id",
+        "name": "nonce",
         "type": "string"
       },
       {
@@ -144,7 +144,7 @@
         "type": "address"
       }
     ],
-    "name": "taskERC20",
+    "name": "rewardedERC20",
     "type": "event"
   },
   {
@@ -240,44 +240,6 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "_value",
-        "type": "uint256"
-      },
-      {
-        "internalType": "string",
-        "name": "_nonce",
-        "type": "string"
-      },
-      {
-        "internalType": "address",
-        "name": "_token",
-        "type": "address"
-      },
-      {
-        "internalType": "uint8",
-        "name": "v",
-        "type": "uint8"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "r",
-        "type": "bytes32"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "s",
-        "type": "bytes32"
-      }
-    ],
-    "name": "fillERC20",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "bytes32",
         "name": "role",
         "type": "bytes32"
@@ -350,6 +312,44 @@
       }
     ],
     "name": "renounceRole",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_value",
+        "type": "uint256"
+      },
+      {
+        "internalType": "string",
+        "name": "_nonce",
+        "type": "string"
+      },
+      {
+        "internalType": "address",
+        "name": "_token",
+        "type": "address"
+      },
+      {
+        "internalType": "uint8",
+        "name": "v",
+        "type": "uint8"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "r",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "s",
+        "type": "bytes32"
+      }
+    ],
+    "name": "replenishERC20",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

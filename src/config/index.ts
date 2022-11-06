@@ -8,10 +8,6 @@ export enum ENetwork {
   mumbai = 'mumbai',
 }
 
-const provider = {
-  [ENetwork.mumbai]: `https://polygon-mumbai.infura.io/v3/${process.env.INFURA_API_KEY}`,
-}
-
 export default {
   isTest,
   server: {
@@ -41,5 +37,23 @@ export default {
       bearerToken: process.env.TWITTER_BEARER,
     },
   },
-  provider,
+  chain: {
+    contract: {
+      [ENetwork.mumbai]: '0x50Bc12FAaBd9f3F7515d9a3538dE84d301B4842e',
+    },
+    provider: {
+      wss: {
+        [ENetwork.mumbai]: `wss://polygon-mumbai.g.alchemy.com/v2/${process.env.ALCHEMY_API_KEY}`,
+      },
+      http: {
+        [ENetwork.mumbai]: `https://polygon-mumbai.infura.io/v3/${process.env.INFURA_API_KEY}`,
+      },
+    },
+    validatorKey: {
+      [ENetwork.mumbai]: process.env.MUMBAI_VALIDATOR_PRIVATE_KEY,
+    },
+    startBlock: {
+      [ENetwork.mumbai]: 29012046,
+    },
+  },
 }

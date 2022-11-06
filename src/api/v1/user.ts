@@ -11,7 +11,6 @@ const standardizeUser = (user: UserModel) => output({
   id: user.id,
   address: user.address,
   name: user.name,
-  dateOfBirth: user.dateOfBirth,
 })
 
 export const getMessage = async (
@@ -37,7 +36,6 @@ export const getMessage = async (
 
 type TUserVariables = {
   name: string
-  dateOfBirth: Date
 }
 
 type TRegister = {

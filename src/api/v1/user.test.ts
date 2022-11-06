@@ -34,7 +34,6 @@ describe('User routes', () => {
     const signature = web3.eth.accounts.sign(messageHex, account.privateKey)
     const info = {
       name: 'stepidone',
-      dateOfBirth: new Date(),
     }
 
     const signupUrl = '/api/v1/user/signup'
@@ -51,17 +50,15 @@ describe('User routes', () => {
     expect(signupResponse.statusCode).toBe(200)
     expect(signupResponse.result).not.toBeNull()
     expect(typeof signupResponse.result).toBe('object')
-    const { result: signupResult, status: signupStatus } = signupResponse.result as TOutput<Pick<TUser, 'id' | 'address' | 'name' | 'dateOfBirth'>>
+    const { result: signupResult, status: signupStatus } = signupResponse.result as TOutput<Pick<TUser, 'id' | 'address' | 'name'>>
     expect(signupStatus).toBe(true)
     expect(signupResult).not.toBeNull()
     expect(signupResult).toHaveProperty('id')
     expect(signupResult).toHaveProperty('address')
     expect(signupResult).toHaveProperty('name')
-    expect(signupResult).toHaveProperty('dateOfBirth')
     expect(typeof signupResult!.id).toBe('string')
     expect(signupResult!.address).toBe(account.address.toLowerCase())
     expect(signupResult!.name).toBe(info.name)
-    expect(signupResult!.dateOfBirth).toStrictEqual(info.dateOfBirth)
 
     const signinUrl = '/api/v1/user/signin'
     const signinResponse = await server.inject({
@@ -77,17 +74,15 @@ describe('User routes', () => {
     expect(signinResponse.statusCode).toBe(200)
     expect(signinResponse.result).not.toBeNull()
     expect(typeof signinResponse.result).toBe('object')
-    const { result: signinResult, status: signinStatus } = signinResponse.result as TOutput<Pick<TUser, 'id' | 'address' | 'name' | 'dateOfBirth'>>
+    const { result: signinResult, status: signinStatus } = signinResponse.result as TOutput<Pick<TUser, 'id' | 'address' | 'name'>>
     expect(signinStatus).toBe(true)
     expect(signinResult).not.toBeNull()
     expect(signinResult).toHaveProperty('id')
     expect(signinResult).toHaveProperty('address')
     expect(signinResult).toHaveProperty('name')
-    expect(signinResult).toHaveProperty('dateOfBirth')
     expect(typeof signinResult!.id).toBe('string')
     expect(signinResult!.address).toBe(account.address.toLowerCase())
     expect(signinResult!.name).toBe(info.name)
-    expect(signinResult!.dateOfBirth).toStrictEqual(info.dateOfBirth)
   })
 
   test('User update', async () => {
@@ -100,14 +95,12 @@ describe('User routes', () => {
 
     const userBefore = (await userCreate({ address: account.address.toLowerCase() })).get({ plain: true })
     expect(userBefore).not.toHaveProperty('name')
-    expect(userBefore).not.toHaveProperty('dateOfBirth')
 
     const { result: messageResult } = messageResponse.result as TOutput<{ message: string, messageHex: string }>
     const { messageHex } = messageResult!
     const signature = web3.eth.accounts.sign(messageHex, account.privateKey)
     const info = {
       name: 'stepidone',
-      dateOfBirth: new Date(),
     }
 
     const updateUrl = '/api/v1/user'
@@ -127,8 +120,6 @@ describe('User routes', () => {
     expect(userAfter.address).toBe(userBefore.address)
     expect(userAfter.name).not.toBeNull()
     expect(userAfter.name).toBe(info.name)
-    expect(userAfter.dateOfBirth).not.toBeNull()
-    expect(userAfter.dateOfBirth).toStrictEqual(info.dateOfBirth)
   })
 
   test('User delete', async () => {

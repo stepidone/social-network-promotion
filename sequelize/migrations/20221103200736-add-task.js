@@ -33,6 +33,7 @@ module.exports = {
       userId: { type: Sequelize.STRING, allowNull: false },
       taskId: { type: Sequelize.INTEGER, allowNull: false },
       status: { type: Sequelize.STRING, allowNull: false, defaultValue: 'not_completed' },
+      nonce: { type: Sequelize.INTEGER, autoIncrement: true },
       createdAt: { type: Sequelize.DATE, allowNull: false },
       updatedAt: { type: Sequelize.DATE, allowNull: false },
       deletedAt: { type: Sequelize.DATE, allowNull: true },

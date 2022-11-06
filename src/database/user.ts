@@ -22,13 +22,12 @@ export type TUser = {
   id: string
   address: string
   name: string
-  dateOfBirth: Date
   createdAt: Date
   updatedAt: Date
   deletedAt: Date
 }
 
-type TCreateUser = Optional<Pick<TUser, 'address' | 'name' | 'dateOfBirth'>, 'name' | 'dateOfBirth'>
+type TCreateUser = Optional<Pick<TUser, 'address' | 'name'>, 'name'>
 
 @Table({
   tableName: 'Users',
@@ -47,10 +46,6 @@ export class UserModel extends Model<TUser, TCreateUser> implements TUser {
   @AllowNull(true)
   @Column(DataType.STRING)
   name: string
-
-  @AllowNull(true)
-  @Column(DataType.DATE)
-  dateOfBirth: Date
   
   @CreatedAt
   createdAt: Date

@@ -7,7 +7,6 @@ module.exports = {
       id: { primaryKey: true, type: Sequelize.STRING },
       address: { type: Sequelize.STRING, allowNull: false },
       name: { type: Sequelize.STRING, allowNull: true },
-      dateOfBirth: { type: Sequelize.DATE, allowNull: true },
       createdAt: { type: Sequelize.DATE, allowNull: false },
       updatedAt: { type: Sequelize.DATE, allowNull: false },
       deletedAt: { type: Sequelize.DATE, allowNull: true },

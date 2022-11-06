@@ -1,7 +1,7 @@
 import { ServerRoute } from '@hapi/hapi'
 import Joi from 'joi'
 import * as handler from '../../api/v1/user'
-import { addressValidation, hexValidation, outputSchema, outputUser, userVariables } from '../schemes'
+import { addressValidation, hexValidation, outputSchema, outputUserSchema, userVariablesSchema } from '../schemes'
 
 export default <ServerRoute[]> [
   {
@@ -33,11 +33,11 @@ export default <ServerRoute[]> [
         payload: Joi.object({
           messageHex: Joi.string().custom(hexValidation).required().description('Converted message').example('0x12345'),
           signature: Joi.string().custom(hexValidation).required().description('Signature of converted message').example('0x12345'),
-          info: userVariables.optional().default({}),
+          info: userVariablesSchema.optional().default({}),
         }),
       },
       response: {
-        schema: outputUser,
+        schema: outputUserSchema,
       },
     },
   },
@@ -49,7 +49,7 @@ export default <ServerRoute[]> [
       tags: ['api', 'user', 'signature'],
       auth: 'signature',
       response: {
-        schema: outputUser,
+        schema: outputUserSchema,
       },
     },
   },
@@ -61,10 +61,10 @@ export default <ServerRoute[]> [
       tags: ['api', 'user', 'signature'],
       auth: 'signature',
       validate: {
-        payload: userVariables.required(),
+        payload: userVariablesSchema.required(),
       },
       response: {
-        schema: outputUser,
+        schema: outputUserSchema,
       },
     },
   },

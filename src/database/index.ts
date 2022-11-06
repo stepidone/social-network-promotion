@@ -6,8 +6,18 @@ import { TaskModel } from './task'
 import { TaskStatisticModel } from './TaskStatistic'
 import { UserModel } from './user'
 import { UserSocialModel } from './userSocial'
+import { TwitterGroupModel } from './twitter/group'
+import { TwitterFollowerModel } from './twitter/groupFollower'
+import { TwitterPostModel } from './twitter/post'
+import { TwitterPostInteractionModel } from './twitter/postInteraction'
+import { EventLogModel } from './eventLog'
 
 export type TOptional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
+export type TRequireAtLeastOne<T, Keys extends keyof T = keyof T> =
+  Pick<T, Exclude<keyof T, Keys>> 
+  & {
+    [K in Keys]-?: Required<Pick<T, K>> & Partial<Pick<T, Exclude<Keys, K>>>
+  }[Keys]
 
 type TDatabaseOptions = Partial<{
   host: string
@@ -28,6 +38,11 @@ export default <Plugin<TDatabaseOptions>> {
       TaskModel,
       TaskRewardModel,
       TaskStatisticModel,
+      TwitterGroupModel,
+      TwitterFollowerModel,
+      TwitterPostModel,
+      TwitterPostInteractionModel,
+      EventLogModel,
     ]
 
     if (config.isTest) {

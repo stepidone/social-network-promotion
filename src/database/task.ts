@@ -20,6 +20,8 @@ import { TOptional } from './index'
 import { TaskRewardModel } from './taskReward'
 import { TaskStatisticModel } from './TaskStatistic'
 import { UserModel } from './user'
+import { twitterGroupCreate } from './twitter/group'
+import { ETwitterPostStatus, twitterPostCreate } from './twitter/post'
 
 export enum ETaskType {
   twitter_follow = 'twitter_follow',
@@ -161,7 +163,7 @@ export const taskGetPublicList = async (
 ): Promise<{ count: number, rows: TaskModel[] }> => TaskModel.scope({ method: ['public', userId] }).findAndCountAll(options)
 
 export const taskGetById = async (
-  id: string,
+  id: number,
 ): Promise<TaskModel> => TaskModel.findByPk(id, {
   include: [
     {
@@ -169,3 +171,44 @@ export const taskGetById = async (
     },
   ],
 })
+
+export const taskActivate = async (
+  id: number,
+): Promise<void> => {
+  const [, [task]] = await TaskModel.update({
+    status: ETaskStatus.active,
+  }, {
+    where: {
+      id,
+    },
+    returning: true,
+  })
+  if (!task) return
+  switch (task.type) {
+    case ETaskType.twitter_follow: {
+      await twitterGroupCreate({
+        id: task.related.externalId,
+      })
+
+      break
+    }
+
+    case ETaskType.twitter_like: {
+      await twitterPostCreate({
+        id: task.related.externalId,
+        likeStatus: ETwitterPostStatus.pending,
+      })
+
+      break
+    }
+
+    case ETaskType.twitter_retweet: {
+      await twitterPostCreate({
+        id: task.related.externalId,
+        retweetStatus: ETwitterPostStatus.pending,
+      })
+
+      break
+    }
+  }
+}
