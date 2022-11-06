@@ -20,12 +20,12 @@ const recursiveLikesUpdate = async (
     if (post.likePaginationToken) params.pagination_token = post.likePaginationToken
     const response = (await getTwitterLikes(post.id, params)).data
     if (response.data && response.data.length) {
-      const followers: TCreateTwitterPostInteraction[] = response.data.map((user: TTwitterUser) => ({
+      const likedUsers: TCreateTwitterPostInteraction[] = response.data.map((user: TTwitterUser) => ({
         type: ETwitterPostInteractionType.like,
         postId: post.id,
         userId: user.id,
       }))
-      await TwitterPostInteractionModel.bulkCreate(followers, { ignoreDuplicates: true })
+      await TwitterPostInteractionModel.bulkCreate(likedUsers, { ignoreDuplicates: true })
     }
 
     if (!response.meta.next_token) {
@@ -39,12 +39,8 @@ const recursiveLikesUpdate = async (
       })
       posts.shift()
     } else {
-      await TwitterPostModel.update({
+      await post.update({
         likePaginationToken: response.meta.next_token,
-      }, {
-        where: {
-          id: post.id,
-        },
       })
     }
 

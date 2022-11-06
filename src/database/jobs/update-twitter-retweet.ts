@@ -20,12 +20,12 @@ const recursiveRetweetsUpdate = async (
     if (post.retweetPaginationToken) params.pagination_token = post.retweetPaginationToken
     const response = (await getTwitterRetweets(post.id, params)).data
     if (response.data && response.data.length) {
-      const followers: TCreateTwitterPostInteraction[] = response.data.map((user: TTwitterUser) => ({
+      const retweetedUsers: TCreateTwitterPostInteraction[] = response.data.map((user: TTwitterUser) => ({
         type: ETwitterPostInteractionType.retweet,
         postId: post.id,
         userId: user.id,
       }))
-      await TwitterPostInteractionModel.bulkCreate(followers, { ignoreDuplicates: true })
+      await TwitterPostInteractionModel.bulkCreate(retweetedUsers, { ignoreDuplicates: true })
     }
 
     if (!response.meta.next_token) {
@@ -39,12 +39,8 @@ const recursiveRetweetsUpdate = async (
       })
       posts.shift()
     } else {
-      await TwitterPostModel.update({
+      await post.update({
         retweetPaginationToken: response.meta.next_token,
-      }, {
-        where: {
-          id: post.id,
-        },
       })
     }
 
